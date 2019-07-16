@@ -1,0 +1,22 @@
+data
+outputs
+
+# Python
+*.pyc
+__pycache__
+
+# Coverage
+*.coverage
+*.coveragerc
+
+# PyCharm
+.idea
+
+# Protobuf files
+*_pb2.py
+
+# line_profiler
+*.lprof
+
+# tf_profiler
+*.json
