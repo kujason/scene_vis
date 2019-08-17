@@ -5,12 +5,11 @@ import numpy as np
 import pykitti
 import scipy.io
 import vtk
-from md3d.core import transform_utils
 
-from md3d.datasets.kitti import calib_utils, obj_utils
-from md3d.utils import demo_utils
-from md3d.visualization.vtk_wrapper import vtk_utils
-from md3d.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from core import transform_utils, demo_utils
+from core.visualization.vtk_wrapper import vtk_utils
+from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from datasets.kitti.obj import obj_utils, calib_utils
 
 
 def get_velo_points(raw_data, frame_idx):
@@ -266,13 +265,6 @@ def main():
             vtk_pc_pose.set_points(np.reshape(imu_ref_pose[0:3, 3], [-1, 3]))
             vtk_renderer.AddActor(vtk_pc_pose.vtk_actor)
 
-        # Render
-        render_start_time = time.time()
-        # Reset the clipping range to show all points
-        vtk_renderer.ResetCameraClippingRange()
-        vtk_render_window.Render()
-        print('render\t\t', time.time() - render_start_time)
-
         # Move camera
         if camera_viewpoint == 'front':
             imu_curr_cam0_position = tf_imu_calib_cam0_calib @ [0.0, 0.0, 0.0, 1.0]
@@ -293,8 +285,14 @@ def main():
         current_cam.SetFocalPoint(*imu_ref_focal_point[0:3])
 
         current_cam.Zoom(0.5)
+
+        # Reset the clipping range to show all points
         vtk_renderer.ResetCameraClippingRange()
-        vtk_renderer.GetRenderWindow().Render()
+
+        # Render
+        render_start_time = time.time()
+        vtk_render_window.Render()
+        print('render\t\t', time.time() - render_start_time)
 
         # Pause to keep frame rate under max
         loop_run_time = time.time() - loop_start_time

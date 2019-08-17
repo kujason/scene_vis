@@ -4,14 +4,16 @@ import time
 
 import numpy as np
 
+from core import depth_map_utils
+from core.builders.dataset_builder import DatasetBuilder
+from datasets.kitti.obj import obj_utils, calib_utils
 from ip_basic import ip_basic
-
-from md3d.builders.dataset_builder import DatasetBuilder
-from md3d.datasets.kitti import obj_utils, calib_utils, depth_map_utils
 
 
 def main():
-    """Interpolates the lidar point cloud to and saves a dense depth map of the scene.
+    """Interpolates the lidar point cloud using IP-Basic
+    and saves a dense depth map of the scene.
+    https://github.com/kujason/ip_basic
     """
 
     ##############################

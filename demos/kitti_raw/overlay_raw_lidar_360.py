@@ -4,15 +4,10 @@ import time
 import numpy as np
 import pykitti
 import vtk
+from core.visualization.vtk_wrapper import vtk_utils
 
-from md3d.core import transform_utils
-from md3d.datasets.kitti import depth_map_utils, obj_utils
-from md3d.datasets.kitti.raw import raw_utils
-from md3d.utils import demo_utils
-from md3d.visualization.vtk_wrapper import vtk_utils
-from md3d.visualization.vtk_wrapper.vtk_boxes import VtkBoxes
-from md3d.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
-from md3d.visualization.vtk_wrapper.vtk_pyramid_boxes import VtkPyramidBoxes
+from core import transform_utils, demo_utils
+from core.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
 
 
 def np_wrap_to_pi(angles):
@@ -26,22 +21,6 @@ def get_velo_points(raw_data, frame_idx):
     intensities = velo_points[:, 3]
 
     return points, intensities
-
-
-def save_screenshot(vtk_render_window, png_writer,
-                    output_dir, sample_name):
-    """Saves a screenshot of the current render window
-    """
-    # Update
-    window_to_image_filter = vtk.vtkWindowToImageFilter()
-    window_to_image_filter.SetInput(vtk_render_window)
-    window_to_image_filter.Update()
-
-    # Take a screenshot and save to file
-    file_name = output_dir + "/{}.png".format(sample_name)
-    png_writer.SetFileName(file_name)
-    png_writer.SetInputData(window_to_image_filter.GetOutput())
-    png_writer.Write()
 
 
 def main():
@@ -70,9 +49,9 @@ def main():
     # drive_id = '2011_09_26_drive_0029_sync'  # both moving, good gps (430)
     # drive_id = '2011_09_26_drive_0032_sync'  # both moving, following some cars
     # drive_id = '2011_09_26_drive_0035_sync'  #
-    # drive_id = '2011_09_26_drive_0036_sync'  # (long) behind red truck
+    drive_id = '2011_09_26_drive_0036_sync'  # (long) behind red truck
     # drive_id = '2011_09_26_drive_0039_sync'  # ok, 1 moving
-    drive_id = '2011_09_26_drive_0046_sync'  # (short) only 1 moving at start
+    # drive_id = '2011_09_26_drive_0046_sync'  # (short) only 1 moving at start
     # drive_id = '2011_09_26_drive_0048_sync'  # ok but short, no movement
     # drive_id = '2011_09_26_drive_0052_sync'  #
     # drive_id = '2011_09_26_drive_0056_sync'  #
@@ -211,10 +190,6 @@ def main():
 
         print('projection\t', time.time() - projection_start_time)
 
-        # Get calibration transformations
-        tf_velo_calib_imu_calib = transform_utils.invert_tf(tf_imu_calib_velo_calib)
-        tf_cam0_calib_imu_calib = tf_cam0_calib_velo_calib @ tf_velo_calib_imu_calib
-
         cam0_ref_pose = poses[frame_idx]
         tf_cam0_ref_cam0_curr = cam0_ref_pose
         cam0_ref_pc_padded = tf_cam0_ref_cam0_curr @ cam0_curr_pc_padded
@@ -229,18 +204,11 @@ def main():
         vtk_pc_pose.set_points(np.reshape(cam0_ref_pose[0:3, 3], [-1, 3]))
         # vtk_renderer.AddActor(vtk_pc_pose.vtk_actor)
 
-        # Render
-        render_start_time = time.time()
-        # Reset the clipping range to show all points
-        vtk_renderer.ResetCameraClippingRange()
-        vtk_render_window.Render()
-        print('render\t\t', time.time() - render_start_time)
-
         # Move camera
         if camera_viewpoint == 'front':
             cam0_curr_vtk_cam_position = [0.0, 0.0, 0.0, 1.0]
         elif camera_viewpoint == 'elevated':
-            cam0_curr_vtk_cam_position = [0.0, -5.0, -10.0, 1.0]
+            cam0_curr_vtk_cam_position = [0.0, -10.0, -25.0, 1.0]
         elif camera_viewpoint == '':
             pass
         else:
@@ -252,15 +220,21 @@ def main():
         cam0_ref_vtk_cam_fp = tf_cam0_ref_cam0_curr @ cam0_curr_vtk_cam_fp
 
         current_cam = vtk_renderer.GetActiveCamera()
-        vtk_renderer.ResetCamera()
+        # vtk_renderer.ResetCamera()
         current_cam.SetViewUp(0, -1, 0)
 
         current_cam.SetPosition(cam0_ref_vtk_cam_pos[0:3])
         current_cam.SetFocalPoint(*cam0_ref_vtk_cam_fp[0:3])
 
-        current_cam.Zoom(0.5)
+        # current_cam.Zoom(0.5)
+
+        # Reset the clipping range to show all points
         vtk_renderer.ResetCameraClippingRange()
-        vtk_renderer.GetRenderWindow().Render()
+
+        # Render
+        render_start_time = time.time()
+        vtk_render_window.Render()
+        print('render\t\t', time.time() - render_start_time)
 
         print('---')
 
