@@ -3,9 +3,13 @@ This module converts data to and from the 'box_3d' format
  [x, y, z, l, w, h, ry]
 """
 import numpy as np
-import tensorflow as tf
 
-from core import format_checker as fc
+try:
+    import tensorflow as tf
+except ImportError:
+    import warnings
+    warnings.warn('tensorflow not installed')
+
 from datasets.kitti.obj import obj_utils
 
 
@@ -19,8 +23,6 @@ def box_3d_to_object_label(box_3d, obj_type='Car'):
     Returns:
         ObjectLabel with the location, size, and rotation filled out
     """
-
-    fc.check_box_3d_format(box_3d)
 
     obj_label = obj_utils.ObjectLabel()
 
@@ -44,7 +46,6 @@ def object_label_to_box_2d(obj_label):
     Returns:
         box_2d: 2D box in box_2d format [y1, x1, y2, x2]
     """
-    fc.check_obj_label_format(obj_label)
     box_2d = np.asarray([obj_label.y1, obj_label.x1, obj_label.y2, obj_label.x2], np.float32)
     return box_2d
 
@@ -58,8 +59,6 @@ def object_label_to_box_3d(obj_label):
     Returns:
         box_3d: 3D box in box_3d format [x, y, z, l, w, h, ry]
     """
-
-    fc.check_obj_label_format(obj_label)
 
     box_3d = np.zeros(7, dtype=np.float32)
 
@@ -89,8 +88,6 @@ def box_3d_to_anchor(boxes_3d, ortho_rotate=False):
     """
 
     boxes_3d = np.asarray(boxes_3d).reshape(-1, 7)
-
-    fc.check_box_3d_format(boxes_3d)
 
     num_anchors = len(boxes_3d)
     anchors = np.zeros((num_anchors, 6))
@@ -231,8 +228,6 @@ def anchors_to_box_3d(anchors, fix_lw=False):
 
     else:
 
-        fc.check_anchor_format(anchors)
-
         anchors = np.asarray(anchors)
         box_3d = np.zeros((len(anchors), 7))
 
@@ -274,7 +269,6 @@ def box_3d_to_3d_iou_format(boxes_3d):
         new_anchor_list: numpy array of 3d box format for iou
     """
     boxes_3d = np.asarray(boxes_3d)
-    fc.check_box_3d_format(boxes_3d)
 
     iou_3d_boxes = np.zeros([len(boxes_3d), 7])
     iou_3d_boxes[:, 4:7] = boxes_3d[:, 0:3]

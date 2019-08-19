@@ -132,7 +132,7 @@ def main():
     # End of Options
     ####################
 
-    max_loop_time = 1.0 / max_fps
+    min_loop_time = 1.0 / max_fps
 
     vtk_renderer = demo_utils.setup_vtk_renderer()
 
@@ -297,8 +297,8 @@ def main():
         # Pause to keep frame rate under max
         loop_run_time = time.time() - loop_start_time
         print('loop\t\t', loop_run_time)
-        if loop_run_time < max_loop_time:
-            time.sleep(max_loop_time - loop_run_time)
+        if loop_run_time < min_loop_time:
+            time.sleep(min_loop_time - loop_run_time)
 
         print('---')
 

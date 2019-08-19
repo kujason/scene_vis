@@ -7,5 +7,4 @@ pypng
 pyyaml
 scipy
 sklearn
-tensorflow-gpu>=1.3
 vtk

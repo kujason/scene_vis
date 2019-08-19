@@ -97,12 +97,11 @@ def get_depth_point_cloud(depth_map, cam_p, min_v=0, flatten=True, in_cam0_frame
         # Get x offset (b_cam) from calibration: cam_p[0, 3] = (-f_x * b_cam)
         x_offset = -cam_p[0, 3] / focal_length
 
-        # TODO: mask out invalid points
-        point_cloud_map = np.asarray([x + x_offset, y, z])
+        valid_pixel_mask = depth_map > 0
+        x[valid_pixel_mask] += x_offset
 
-    else:
-        # Return the points in the provided camera frame
-        point_cloud_map = np.asarray([x, y, z])
+    # Return the points in the provided camera frame
+    point_cloud_map = np.asarray([x, y, z])
 
     if flatten:
         point_cloud = np.reshape(point_cloud_map, (3, -1))

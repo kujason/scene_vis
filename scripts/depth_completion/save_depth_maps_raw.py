@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 
+import core
 from core import transform_utils, depth_map_utils
 from datasets.kitti.obj import obj_utils
 from datasets.kitti.raw import raw_utils
@@ -21,7 +22,8 @@ def main():
     ##############################
 
     kitti_raw_dir = os.path.expanduser('~/Kitti/raw')
-    drive_id = '2011_09_26_drive_0039_sync'
+    drive_id = '2011_09_26_drive_0023_sync'
+    # drive_id = '2011_09_26_drive_0039_sync'
 
     raw_data = raw_utils.get_raw_data(drive_id, kitti_raw_dir)
 
@@ -30,7 +32,8 @@ def main():
 
     save_depth_maps = True
 
-    out_depth_map_dir = 'outputs/raw/{}/depth_02_{}'.format(drive_id, fill_type)
+    out_depth_map_dir = core.data_dir() + '/depth_completion/raw/{}/depth_02_{}'.format(
+        drive_id, fill_type)
 
     ##############################
     # End of Options
@@ -75,11 +78,11 @@ def main():
         cam0_point_cloud, _ = obj_utils.filter_pc_to_area(
             cam0_point_cloud[0:3], area_extents=np.asarray([[-40, 40], [-3, 5], [0, 80]]))
 
+        # Project point cloud to create depth map
+        projected_depths = depth_map_utils.project_depths(cam0_point_cloud, cam_p, image_shape)
+
         # Fill depth map
         if fill_type == 'multiscale':
-            # Project point cloud to depth map
-            projected_depths = depth_map_utils.project_depths(cam0_point_cloud, cam_p, image_shape)
-
             start_fill_time = time.time()
             final_depth_map, _ = ip_basic.fill_in_multiscale(projected_depths)
             end_fill_time = time.time()
