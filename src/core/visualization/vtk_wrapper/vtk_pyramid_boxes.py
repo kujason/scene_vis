@@ -72,15 +72,6 @@ class VtkPyramidBoxes:
             object_labels: List of ObjectLabels to visualize
             colour_scheme: colours for each class (e.g. vtk_utils.COLOUR_SCHEME_KITTI)
             show_orientations:
-
-        Returns:
-
-        """
-        """
-
-        :param object_labels: 
-        :param colour_scheme: 
-        :param show_orientations: (optional) if True, show box orientations
         """
         box_corners = []
         box_colours = []
