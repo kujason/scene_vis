@@ -21,6 +21,7 @@ def get_velo_points(tracking_data, frame_idx):
 
     # Filter points to certain area
     points = velo_points[:, 0:3]
+    points_i = velo_points[:, 3]
     area_extents = np.array([[0, 100], [-50, 50], [-5, 1]],
                             dtype=np.float32)
     area_filter = \
@@ -31,8 +32,9 @@ def get_velo_points(tracking_data, frame_idx):
         (points[:, 2] > area_extents[2, 0]) & \
         (points[:, 2] < area_extents[2, 1])
     points = points[area_filter]
+    points_i = points_i[area_filter]
 
-    return points
+    return points, points_i
 
 
 def main():
@@ -40,16 +42,17 @@ def main():
     # Options
     ##############################
 
-    sequence_id = '0013'
+    # sequence_id = '0013'
     # sequence_id = '0014'
-    # sequence_id = '0015'
+    sequence_id = '0015'
+    sequence_id = '0020'
 
     # raw_dir = os.path.expanduser('~/Kitti/raw')
     tracking_dir = os.path.expanduser('~/Kitti/tracking/training')
 
     tracking_data = pykitti.tracking(tracking_dir, sequence_id)
 
-    max_fps = 20.0
+    max_fps = 30.0
     vtk_window_size = (1280, 720)
     show_pose = True
     point_cloud_source = 'lidar'
@@ -64,6 +67,9 @@ def main():
 
     camera_viewpoint = 'front'
     camera_viewpoint = 'elevated'
+
+    load_images = True
+    # load_images = False
 
     ##############################
 
@@ -141,12 +147,9 @@ def main():
 
         # Load next frame data
         load_start_time = time.time()
-        # rgb_image = np.asarray(next(cam2_iterator))
-        rgb_image = np.asarray(tracking_data.get_cam2(frame_idx))
-        bgr_image = rgb_image[..., ::-1]
 
         if point_cloud_source == 'lidar':
-            velo_points = get_velo_points(tracking_data, frame_idx)
+            velo_points, velo_points_i = get_velo_points(tracking_data, frame_idx)
 
             # Transform point cloud to cam_0 frame
             velo_curr_points_padded = np.pad(
@@ -166,15 +169,23 @@ def main():
 
         if point_cloud_source == 'lidar':
 
-            points_in_img = calib_utils.project_pc_to_image(cam0_curr_pc_all_padded[0:3], cam_p)
-            points_in_img_int = np.round(points_in_img).astype(np.int32)
+            if load_images:
+                rgb_image = np.asarray(tracking_data.get_cam2(frame_idx))
+                bgr_image = rgb_image[..., ::-1]
 
-            image_filter = obj_utils.points_in_img_filter(points_in_img_int, bgr_image.shape)
+                points_in_img = calib_utils.project_pc_to_image(cam0_curr_pc_all_padded[0:3], cam_p)
+                points_in_img_int = np.round(points_in_img).astype(np.int32)
 
-            cam0_curr_pc_padded = cam0_curr_pc_all_padded[:, image_filter]
+                image_filter = obj_utils.points_in_img_filter(points_in_img_int, bgr_image.shape)
 
-            points_in_img_int_valid = points_in_img_int[:, image_filter]
-            point_colours = bgr_image[points_in_img_int_valid[1], points_in_img_int_valid[0]]
+                cam0_curr_pc_padded = cam0_curr_pc_all_padded[:, image_filter]
+
+                points_in_img_int_valid = points_in_img_int[:, image_filter]
+                point_colours = bgr_image[points_in_img_int_valid[1], points_in_img_int_valid[0]]
+            else:
+                cam0_curr_pc_padded = cam0_curr_pc_all_padded
+                point_colours = np.repeat((velo_points_i * 255).astype(np.uint8), 3).reshape(-1, 3)
+                # point_colours = np.full(cam0_curr_pc_padded[0:3].T.shape, [255, 255, 255])
         else:
             raise ValueError('Invalid point_cloud_source', point_cloud_source)
 
