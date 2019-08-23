@@ -51,10 +51,10 @@ def main():
     # drive_id = '2011_09_26_drive_0019_sync'  # both moving, some people at end, wonky gps
     # drive_id = '2011_09_26_drive_0020_sync'  # gps drift
     # drive_id = '2011_09_26_drive_0022_sync'  # ego mostly, then both, long
-    # drive_id = '2011_09_26_drive_0023_sync'  # sample 169 (long)
+    drive_id = '2011_09_26_drive_0023_sync'  # sample 169 (long)
     # drive_id = '2011_09_26_drive_0027_sync'  # both moving, fast, straight
     # drive_id = '2011_09_26_drive_0028_sync'  # both moving, opposite
-    drive_id = '2011_09_26_drive_0029_sync'  # both moving, good gps
+    # drive_id = '2011_09_26_drive_0029_sync'  # both moving, good gps
     # drive_id = '2011_09_26_drive_0032_sync'  # both moving, following some cars
     # drive_id = '2011_09_26_drive_0035_sync'  #
     # drive_id = '2011_09_26_drive_0036_sync'  # (long) behind red truck
@@ -93,7 +93,7 @@ def main():
     # drive_id = '2011_09_29_drive_0071_sync'  #
 
     # drive_id = '2011_09_30_drive_0020_sync'  #
-    drive_id = '2011_09_30_drive_0027_sync'  # (long)
+    # drive_id = '2011_09_30_drive_0027_sync'  # (long)
     # drive_id = '2011_09_30_drive_0028_sync'  # (long) bad gps
     # drive_id = '2011_09_30_drive_0033_sync'  #
     # drive_id = '2011_09_30_drive_0034_sync'  #
@@ -135,7 +135,6 @@ def main():
     min_loop_time = 1.0 / max_fps
 
     vtk_renderer = demo_utils.setup_vtk_renderer()
-
     vtk_render_window = demo_utils.setup_vtk_render_window(
         'Overlaid Point Cloud', vtk_window_size, vtk_renderer)
 

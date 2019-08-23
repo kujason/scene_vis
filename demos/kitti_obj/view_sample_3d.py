@@ -20,7 +20,8 @@ def main():
     ##############################
     # Options
     ##############################
-    sample_name = '000050'
+    # sample_name = '000050'
+    sample_name = '000641'
     # sample_name = '000169'
     # sample_name = '000191'
     # sample_name = '000197'

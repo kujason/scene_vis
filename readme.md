@@ -1,6 +1,12 @@
 # 3D Scene Visualizer
 3D scene visualization demos for development, using [VTK](https://vtk.org/). Note that some of these scripts are experimental.
 
+---
+Demos included for:
+- KITTI
+- nuScenes
+- Argoverse (coming soon) 
+---
 Depth completion ([IP-Basic](https://github.com/kujason/ip_basic)) example on KITTI with labels shown:
 ![example](./data/images/example.png)
 
@@ -15,9 +21,8 @@ Other works that also use this visualization:
 
 ---
 
-### Setup
-Tested with Python 3.5.2
-
+## Environment
+Python 3.5.2 or 3.6
 
 ```bash
 workon [virtualenvname]
@@ -25,8 +30,10 @@ pip install -r requirements.txt
 add2virtualenv src
 ```
 
-### Setup
-#### KITTI
+Or in PyCharm:
+- Right-click `src` -> Mark Directory As -> Sources Root 
+
+### KITTI Setup
 Download files and place them in `~/Kitti`:
 ```
 /home/$USER/Kitti
@@ -35,13 +42,28 @@ Download files and place them in `~/Kitti`:
     raw
 ```
 
-#### Setup Scripts 
+#### Optional Scripts 
 - Run [depth completion](https://github.com/kujason/ip_basic)
     - `scripts/depth_completion/save_depth_maps_obj.py`
     - `scripts/depth_completion/save_depth_maps_raw.py`
 - Save the outputs into their corresponding Kitti folders. Ex.
     - obj: `~/Kitti/object/training/depth_2_multiscale`
     - raw: `~/Kitti/raw/2011_09_26/2011_09_26_drive_0039_sync/depth_02_multiscale`
+    
+#### Demos
+- kitti_obj
+    - `view_sample_3d.py` - view point cloud and boxes
+- kitti_odometry
+    - `overlay_odom_point_clouds_orbslam.py`
+- kitti_raw
+    - `overlay_xxx.py` - overlay point clouds from multiple frames
+
+### nuScenes Setup
+(Work in Progress)
+- Add a symlink to the nuscenes data in `data/dataset/nuscenes`
+
+#### Demos
+- `show_top_lidar.py`: Show top LiDAR point cloud
 
 ## Controls:
 - Drag: Rotate around focal point
@@ -58,11 +80,3 @@ Keys:
 - 3: Red/Green 3D?
 - s: Render as solids
 - w: Render as wireframes
- 
-#### KITTI Demos
-- kitti_obj
-    - `view_sample_3d.py` - view point cloud and boxes
-- kitti_odometry
-    - `overlay_odom_point_clouds_orbslam.py`
-- kitti_raw
-    - `overlay_xxx.py` - overlay point clouds from multiple frames

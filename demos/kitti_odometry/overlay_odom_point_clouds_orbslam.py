@@ -35,9 +35,9 @@ def main():
     odom_dataset_dir = os.path.expanduser('~/Kitti/odometry/dataset')
 
     # sequence = '02'
-    sequence = '03'
+    # sequence = '03'
     # sequence = '08'
-    # sequence = '09'
+    sequence = '09'
     # sequence = '10'
     # sequence = '11'
     # sequence = '12'
