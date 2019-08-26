@@ -52,8 +52,8 @@ class VtkPointCloudGlyph:
         """Sets the point cloud to be visualized
 
         Args:
-            points: points in the form N x [x, y, z
-            point_colours: BGR pixel colours corresponding to each point from OpenCV
+            points: (N, 3) List of points
+            point_colours: (N, 3) BGR pixel colours corresponding to each point from OpenCV
         """
 
         # Set the points

@@ -137,9 +137,10 @@ def setup_vtk_interactor(vtk_render_window):
     vtk_render_window_interactor.SetRenderWindow(vtk_render_window)
     vtk_render_window_interactor.SetInteractorStyle(
         vtk.vtkInteractorStyleTrackballCamera())
+    return vtk_render_window_interactor
 
 
-def setup_vtk_camera(vtk_renderer):
+def setup_camera_for_kitti(vtk_renderer):
 
     # Setup Camera
     current_cam = vtk_renderer.GetActiveCamera()

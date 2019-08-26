@@ -5,7 +5,7 @@
 Demos included for:
 - KITTI
 - nuScenes
-- Argoverse (coming soon) 
+- Argoverse
 ---
 Depth completion ([IP-Basic](https://github.com/kujason/ip_basic)) example on KITTI with labels shown:
 ![example](./data/images/example.png)
@@ -33,6 +33,8 @@ add2virtualenv src
 Or in PyCharm:
 - Right-click `src` -> Mark Directory As -> Sources Root 
 
+---
+
 ### KITTI Setup
 Download files and place them in `~/Kitti`:
 ```
@@ -51,12 +53,12 @@ Download files and place them in `~/Kitti`:
     - raw: `~/Kitti/raw/2011_09_26/2011_09_26_drive_0039_sync/depth_02_multiscale`
     
 #### Demos
-- kitti_obj
-    - `view_sample_3d.py` - view point cloud and boxes
-- kitti_odometry
-    - `overlay_odom_point_clouds_orbslam.py`
-- kitti_raw
-    - `overlay_xxx.py` - overlay point clouds from multiple frames
+- `kitti_obj/view_sample_3d.py` - view point cloud and boxes
+- `kitti_odometry/overlay_odom_point_clouds_orbslam.py`
+- `kitti_raw/overlay_xxx.py` - overlay point clouds from multiple frames
+- `kitti_raw/depth_completed_point_clouds.py` - shows depth completed point clouds from IP-Basic
+    
+---
 
 ### nuScenes Setup
 (Work in Progress)
@@ -64,6 +66,19 @@ Download files and place them in `~/Kitti`:
 
 #### Demos
 - `show_top_lidar.py`: Show top LiDAR point cloud
+
+---
+
+### Argoverse Setup
+- Add a symlink to the argoverse data in `data/dataset/nuscenes`
+- Install the argoverse api from [https://github.com/argoai/argoverse-api](https://github.com/argoai/argoverse-api)
+
+#### Demos
+- `pointcloud_example.py`: Show point cloud
+
+---
+
+
 
 ## Controls:
 - Drag: Rotate around focal point

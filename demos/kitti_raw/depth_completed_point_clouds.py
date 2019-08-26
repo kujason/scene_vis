@@ -34,7 +34,9 @@ def main():
     ##############################
     # Options
     ##############################
-    """Note: Run scripts/depth_completion/save_depth_maps_raw.py first"""
+    """Note: Run scripts/depth_completion/save_depth_maps_raw.py first.
+    Demo to show depth completed point clouds
+    """
 
     raw_dir = os.path.expanduser('~/Kitti/raw')
     drive_id = '2011_09_26_drive_0023_sync'
