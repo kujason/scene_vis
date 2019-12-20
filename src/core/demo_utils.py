@@ -6,9 +6,9 @@ import vtk
 import core
 from core import box_3d_encoder, evaluation
 from core import config_utils
-from core.visualization.vtk_wrapper.vtk_boxes import VtkBoxes
 from datasets.kitti.obj import obj_utils
 from datasets.kitti.obj.obj_utils import Difficulty
+from scene_vis.vtk_wrapper.vtk_boxes import VtkBoxes
 
 COLOUR_SCHEME_PREDICTIONS = {
     "Easy GT": (255, 255, 0),     # Yellow

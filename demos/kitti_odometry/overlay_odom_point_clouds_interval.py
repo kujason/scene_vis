@@ -5,11 +5,11 @@ import numpy as np
 import pykitti
 import vtk
 
-from core import transform_utils, demo_utils
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
-from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from core import demo_utils
 from datasets.kitti.obj import obj_utils, calib_utils
+from scene_vis.vtk_wrapper import vtk_utils
+from scene_vis.vtk_wrapper.vtk_point_cloud import VtkPointCloud
+from scene_vis.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
 
 
 def get_velo_points(odom_dataset, frame_idx):

@@ -7,9 +7,9 @@ import vtk
 
 import core
 from core import demo_utils, depth_map_utils
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
 from datasets.kitti.obj import obj_utils, calib_utils
+from scene_vis.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from scene_vis.vtk_wrapper import vtk_utils
 
 
 def get_velo_points(raw_data, frame_idx):

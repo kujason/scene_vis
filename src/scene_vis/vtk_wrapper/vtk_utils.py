@@ -1,5 +1,6 @@
 """https://github.com/kujason/scene_vis"""
 
+import datetime
 import vtk
 
 
@@ -25,7 +26,8 @@ class ToggleActorsInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     its order in the list.
     """
 
-    def __init__(self, actors, vtk_renderer, current_cam=None, axes=None):
+    def __init__(self, actors, vtk_renderer, current_cam=None, axes=None,
+                 vtk_win_to_img_filter=None, vtk_png_writer=None):
         super(ToggleActorsInteractorStyle).__init__()
 
         self.actors = actors
@@ -33,6 +35,10 @@ class ToggleActorsInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.vtk_renderer = vtk_renderer
         self.current_cam = current_cam
         self.axes = axes
+
+        # Screenshots
+        self.vtk_win_to_img_filter = vtk_win_to_img_filter
+        self.vtk_png_writer = vtk_png_writer
 
     def key_press_event(self, obj, event):
         vtk_render_window_interactor = self.GetInteractor()
@@ -56,7 +62,8 @@ class ToggleActorsInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
                 self.current_cam.SetViewUp(0, -1, 0)
                 self.current_cam.SetFocalPoint(0.0, 0.0, 20.0)
                 self.current_cam.SetPosition(0.0, 0.0, 0.0)
-                self.current_cam.Zoom(0.6)
+                # self.current_cam.Zoom(0.8)
+                self.current_cam.Zoom(0.55)
                 self.vtk_renderer.ResetCameraClippingRange()
                 self.vtk_renderer.GetRenderWindow().Render()
 
@@ -65,6 +72,19 @@ class ToggleActorsInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
                 current_visibility = self.axes.GetVisibility()
                 self.axes.SetVisibility(not current_visibility)
                 self.vtk_renderer.GetRenderWindow().Render()
+
+        elif key == 'c':
+            camera = self.vtk_renderer.GetActiveCamera()
+            print('{:.3f}, {:.3f}, {:.3f}'.format(*camera.GetPosition()))
+            print('{:.3f}, {:.3f}, {:.3f}'.format(*camera.GetFocalPoint()))
+
+        elif key == 's':
+            if self.vtk_win_to_img_filter is not None:
+                now = datetime.datetime.now()
+                screenshot_name = 'screenshot_{}.png'.format(now)
+                save_screenshot(screenshot_name,
+                                self.vtk_win_to_img_filter, self.vtk_png_writer)
+                print('Saved', screenshot_name)
 
 
 def set_axes_font_size(axes, font_size):

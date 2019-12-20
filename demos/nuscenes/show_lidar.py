@@ -2,14 +2,13 @@
 
 import os
 
-import numpy as np
 import vtk
-from nuscenes.utils.data_classes import LidarPointCloud
 
 from core import demo_utils
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
 from nuscenes.nuscenes import NuScenes
+from nuscenes.utils.data_classes import LidarPointCloud
+from scene_vis.vtk_wrapper import vtk_utils
+from scene_vis.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
 
 
 def main():

@@ -4,10 +4,10 @@ import time
 import numpy as np
 import pykitti
 import vtk
-from core.visualization.vtk_wrapper import vtk_utils
+from scene_vis.vtk_wrapper import vtk_utils
 
 from core import transform_utils, demo_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
+from scene_vis.vtk_wrapper.vtk_point_cloud import VtkPointCloud
 
 
 def np_wrap_to_pi(angles):
@@ -49,7 +49,7 @@ def main():
     # drive_id = '2011_09_26_drive_0029_sync'  # both moving, good gps (430)
     # drive_id = '2011_09_26_drive_0032_sync'  # both moving, following some cars
     # drive_id = '2011_09_26_drive_0035_sync'  #
-    drive_id = '2011_09_26_drive_0036_sync'  # (long) behind red truck
+    # drive_id = '2011_09_26_drive_0036_sync'  # (long) behind red truck
     # drive_id = '2011_09_26_drive_0039_sync'  # ok, 1 moving
     # drive_id = '2011_09_26_drive_0046_sync'  # (short) only 1 moving at start
     # drive_id = '2011_09_26_drive_0048_sync'  # ok but short, no movement
@@ -62,7 +62,7 @@ def main():
     # drive_id = '2011_09_26_drive_0064_sync'  # Smart car, sample 25
     # drive_id = '2011_09_26_drive_0070_sync'  #
     # drive_id = '2011_09_26_drive_0079_sync'  #
-    # drive_id = '2011_09_26_drive_0086_sync'  # (medium) uphill
+    drive_id = '2011_09_26_drive_0086_sync'  # (medium) uphill
     # drive_id = '2011_09_26_drive_0087_sync'  #
     # drive_id = '2011_09_26_drive_0091_sync'  #
     # drive_id = '2011_09_26_drive_0093_sync'  # Sample 50 (bad)

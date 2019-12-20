@@ -2,10 +2,11 @@ import numpy as np
 import vtk
 
 from core.builders.dataset_builder import DatasetBuilder
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
-from core.visualization.vtk_wrapper.vtk_pyramid_boxes import VtkPyramidBoxes
 from datasets.kitti.obj import obj_utils, calib_utils
+
+from scene_vis.vtk_wrapper import vtk_utils
+from scene_vis.vtk_wrapper.vtk_pyramid_boxes import VtkPyramidBoxes
+from scene_vis.vtk_wrapper.vtk_point_cloud import VtkPointCloud
 
 
 def main():
@@ -21,10 +22,15 @@ def main():
     # Options
     ##############################
     # sample_name = '000050'
-    sample_name = '000641'
+    # sample_name = '000095'
+    # sample_name = '000641'
     # sample_name = '000169'
     # sample_name = '000191'
     # sample_name = '000197'
+    # sample_name = '006562'
+    # sample_name = '004965'
+    sample_name = '001692'
+    # sample_name = '000999'
 
     # Area extents
     x_min = -40
@@ -48,7 +54,8 @@ def main():
     frame_calib = calib_utils.get_frame_calib(dataset.calib_dir, sample_name)
 
     # Get lidar points
-    lidar_point_cloud = obj_utils.get_lidar_point_cloud(sample_name, frame_calib, dataset.velo_dir)
+    lidar_point_cloud, lidar_pc_i = obj_utils.get_lidar_point_cloud(
+        sample_name, frame_calib, dataset.velo_dir, intensity=True)
     lidar_point_cloud, area_filter = obj_utils.filter_pc_to_area(lidar_point_cloud, area_extents)
 
     # Filter to image
@@ -58,6 +65,9 @@ def main():
         lidar_point_cloud, lidar_points_in_img, image_shape)
     lidar_points_in_img_int = np.floor(lidar_points_in_img[:, image_filter]).astype(np.int32)
     lidar_point_colours = image[lidar_points_in_img_int[1], lidar_points_in_img_int[0]]
+
+    # lidar_pc_i_valid = lidar_pc_i[area_filter]
+    # lidar_point_colours = (np.repeat(lidar_pc_i_valid, 3).reshape(-1, 3) * 200 + 25).astype(np.uint8)
 
     # Get points from depth map
     depth_point_cloud = obj_utils.get_depth_map_point_cloud(
@@ -93,12 +103,16 @@ def main():
 
     # Create Voxel Grid Renderer in bottom half
     vtk_renderer = vtk.vtkRenderer()
+    # vtk_renderer.SetBackground(0.2, 0.3, 0.4)
+    vtk_renderer.SetBackground(0.35, 0.45, 0.55)
+    # vtk_renderer.SetBackground(0.1, 0.1, 0.1)
+    # vtk_renderer.SetBackground(0.8, 0.8, 0.8)
+
     vtk_renderer.AddActor(vtk_pc_lidar.vtk_actor)
     vtk_renderer.AddActor(vtk_pc_depth.vtk_actor)
 
     vtk_renderer.AddActor(vtk_pyr_boxes.vtk_actor)
-    vtk_renderer.AddActor(axes)
-    vtk_renderer.SetBackground(0.2, 0.3, 0.4)
+    # vtk_renderer.AddActor(axes)
 
     # Setup Camera
     current_cam = vtk_renderer.GetActiveCamera()
@@ -109,7 +123,7 @@ def main():
     vtk_renderer.ResetCamera()
 
     # Zoom in slightly
-    current_cam.Zoom(2.5)
+    # current_cam.Zoom(2.5)
 
     # current_cam.SetViewAngle(5.0)
 
@@ -120,7 +134,8 @@ def main():
     vtk_render_window = vtk.vtkRenderWindow()
     vtk_render_window.SetWindowName(
         "Point Cloud, Sample {}".format(sample_name))
-    vtk_render_window.SetSize(1280, 720)
+    # vtk_render_window.SetSize(1280, 720)
+    vtk_render_window.SetSize(960, 640)
     vtk_render_window.AddRenderer(vtk_renderer)
 
     # Setup custom interactor style, which handles mouse and key events

@@ -5,11 +5,11 @@ import numpy as np
 import pykitti
 import scipy.io
 import vtk
+from scene_vis.vtk_wrapper import vtk_utils
 
 from core import transform_utils, demo_utils
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud import VtkPointCloud
 from datasets.kitti.obj import obj_utils, calib_utils
+from scene_vis.vtk_wrapper.vtk_point_cloud import VtkPointCloud
 
 
 def np_wrap_to_pi(angles):

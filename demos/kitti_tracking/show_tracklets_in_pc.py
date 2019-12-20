@@ -3,17 +3,15 @@ import time
 
 import numpy as np
 import pykitti
-import scipy.io
 import vtk
 
 from core import transform_utils, demo_utils
-from core.visualization.vtk_wrapper import vtk_utils
-from core.visualization.vtk_wrapper.vtk_boxes import VtkBoxes
-from core.visualization.vtk_wrapper.vtk_frustums import VtkFrustums
-from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
-from core.visualization.vtk_wrapper.vtk_text_labels import VtkTextLabels
 from datasets.kitti.obj import obj_utils, calib_utils
 from datasets.kitti.tracking import tracking_utils
+from scene_vis.vtk_wrapper import vtk_utils
+from scene_vis.vtk_wrapper.vtk_boxes import VtkBoxes
+from scene_vis.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from scene_vis.vtk_wrapper.vtk_text_labels import VtkTextLabels
 
 
 def get_velo_points(tracking_data, frame_idx):

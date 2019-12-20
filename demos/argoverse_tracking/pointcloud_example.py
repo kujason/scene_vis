@@ -2,11 +2,12 @@
 
 import vtk
 
+
 from argoverse.data_loading.argoverse_tracking_loader import ArgoverseTrackingLoader
 
 import core
 from core import demo_utils
-from core.visualization.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
+from scene_vis.vtk_wrapper.vtk_point_cloud_glyph import VtkPointCloudGlyph
 
 
 def main():

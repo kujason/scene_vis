@@ -4,12 +4,117 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from datasets.kitti.obj import obj_utils, calib_utils
+from datasets.kitti.obj import obj_utils
 
 # Window sizes
 CV2_SIZE_2_COL = (930, 280)
 CV2_SIZE_3_COL = (620, 187)
 CV2_SIZE_4_COL = (465, 140)
+
+
+def project_pc_to_image(point_cloud, cam_p):
+    """Projects a 3D point cloud to 2D points
+
+    Args:
+        point_cloud: (3, N) point cloud
+        cam_p: 3x4 camera projection matrix
+
+    Returns:
+        pts_2d: (2, N) projected coordinates [u, v] of the 3D points
+    """
+
+    pc_padded = np.append(point_cloud, np.ones((1, point_cloud.shape[1])), axis=0)
+    pts_2d = np.dot(cam_p, pc_padded)
+
+    pts_2d[0:2] = pts_2d[0:2] / pts_2d[2]
+    return pts_2d[0:2]
+
+
+def project_corners_3d_to_image(corners_3d, p):
+    """Computes the 3D bounding box projected onto
+    image space.
+
+    Keyword arguments:
+    obj -- object file to draw bounding box
+    p -- transform matrix
+
+    Returns:
+        corners: (N, 8, 2) Corner points projected into image space
+        face_idx: 3D bounding box faces for drawing
+    """
+    # index for 3d bounding box face
+    # it is converted to 4x4 matrix
+    face_idx = np.array([0, 1, 5, 4,  # front face
+                         1, 2, 6, 5,  # left face
+                         2, 3, 7, 6,  # back face
+                         3, 0, 4, 7]).reshape((4, 4))  # right face
+    return project_pc_to_image(corners_3d, p), face_idx
+
+
+def compute_box_3d_corners(box_3d):
+    """Computes the 3D bounding box corner positions from a 3D box
+
+    Args:
+        box_3d: 3D box (x, y, z, l, w, h, ry)
+
+    Returns:
+        corners_3d:
+    """
+
+    tx, ty, tz, l, w, h, ry = box_3d
+
+    # compute rotational matrix
+    rot = np.array([[+np.cos(ry), 0, +np.sin(ry)],
+                    [0, 1, 0],
+                    [-np.sin(ry), 0, +np.cos(ry)]])
+
+    # 3D BB corners
+    x_corners = np.array(
+        [l / 2, l / 2, -l / 2, -l / 2, l / 2, l / 2, -l / 2, -l / 2])
+    y_corners = np.array([0, 0, 0, 0, -h, -h, -h, -h])
+    z_corners = np.array(
+        [w / 2, -w / 2, -w / 2, w / 2, w / 2, -w / 2, -w / 2, w / 2])
+
+    corners_3d = np.dot(rot, np.array([x_corners, y_corners, z_corners]))
+
+    corners_3d[0, :] = corners_3d[0, :] + tx
+    corners_3d[1, :] = corners_3d[1, :] + ty
+    corners_3d[2, :] = corners_3d[2, :] + tz
+
+    return corners_3d
+
+
+def project_orientation_3d(box_3d, cam_p):
+    """Projects orientation vector given object and camera matrix
+
+    Args:
+        box_3d: 3D box (x, y, z, l, w, h, ry)
+        cam_p: 3x4 camera projection matrix
+
+    Returns:
+        Projection of orientation vector into image
+    """
+
+    tx, ty, tz, l, w, h, ry = box_3d
+
+    # Rotation matrix
+    rot = np.array([[+np.cos(ry), 0, +np.sin(ry)],
+                    [0, 1, 0],
+                    [-np.sin(ry), 0, +np.cos(ry)]])
+
+    orientation_3d = np.array([0.0, l, 0.0, 0.0, 0.0, 0.0]).reshape(3, 2)
+    orientation_3d = np.dot(rot, orientation_3d)
+
+    orientation_3d[0, :] = orientation_3d[0, :] + tx
+    orientation_3d[1, :] = orientation_3d[1, :] + ty
+    orientation_3d[2, :] = orientation_3d[2, :] + tz
+
+    # only draw for boxes that are in front of the camera
+    for idx in np.arange(orientation_3d.shape[1]):
+        if orientation_3d[2, idx] < 0.1:
+            return None
+
+    return project_pc_to_image(orientation_3d, cam_p)
 
 
 def plots_from_image(img,
@@ -126,26 +231,12 @@ def cv2_imshow(window_name, image,
 
 
 def get_point_colours(points, cam_p, image):
-    points_in_im = calib_utils.project_pc_to_image(points.T, cam_p)
+    points_in_im = project_pc_to_image(points.T, cam_p)
     points_in_im_rounded = np.round(points_in_im).astype(np.int32)
 
     point_colours = image[points_in_im_rounded[1], points_in_im_rounded[0]]
 
     return point_colours
-
-
-def draw_obj_as_box_2d(ax, obj, color='g', linewidth=2):
-    """Draws the 2D boxes given an ObjectLabel object by
-     converting to box_2d format then calling draw_box_2d
-
-    Args:
-        ax: subplot handle
-        obj: ObjectLabel object
-        color: color of box
-
-    """
-    box_2d = np.asarray((obj.y1, obj.x1, obj.y2, obj.x2))
-    draw_box_2d(ax, box_2d, color, linewidth)
 
 
 def draw_box_2d(ax, box_2d, color='#90EE900', linewidth=2):
@@ -168,66 +259,3 @@ def draw_box_2d(ax, box_2d, color='#90EE900', linewidth=2):
                              facecolor='none')
     ax.add_patch(rect)
 
-
-def draw_obj_as_box_3d(ax, obj, cam_p, show_orientation=True,
-                       color_table=None, line_width=3, double_line=True,
-                       box_color=None):
-    """Draws the projection of object label as a 3D box
-
-    Args:
-        ax: subplot handle
-        obj: ObjectLabel
-        cam_p: camera projection matrix
-        show_orientation: optional, draw a line showing orientation
-        color_table: optional, a custom table for coloring the boxes,
-            should have 4 values to match the 4 truncation values. This color
-            scheme is used to display boxes colored based on difficulty.
-        line_width: optional, custom line width to draw the box
-        double_line: optional, overlays a thinner line inside the box lines
-        box_color: optional, use a custom color for box (instead of
-            the default color_table
-    """
-
-    corners_3d = obj_utils.compute_obj_label_corners_3d(obj)
-    corners, face_idx = obj_utils.project_corners_3d_to_image(corners_3d, cam_p)
-
-    # define colors
-    if color_table:
-        if len(color_table) != 4:
-            raise ValueError('Invalid color table length, must be 4')
-    else:
-        color_table = ["#00cc00", 'y', 'r', 'w']
-
-    trun_style = ['solid', 'dashed']
-    trc = int(obj.truncation > 0.1)
-
-    if len(corners) > 0:
-        for i in range(4):
-            x = np.append(corners[0, face_idx[i, ]],
-                          corners[0, face_idx[i, 0]])
-            y = np.append(corners[1, face_idx[i, ]],
-                          corners[1, face_idx[i, 0]])
-
-            # Draw the boxes
-            if box_color is None:
-                box_color = color_table[int(obj.occlusion)]
-
-            ax.plot(x, y, linewidth=line_width,
-                    color=box_color,
-                    linestyle=trun_style[trc])
-
-            # Draw a thinner second line inside
-            if double_line:
-                ax.plot(x, y, linewidth=line_width / 3.0, color='b')
-
-    if show_orientation:
-        # Compute orientation 3D
-        orientation = obj_utils.compute_orientation_3d(obj, cam_p)
-
-        if orientation is not None:
-            x = np.append(orientation[0, ], orientation[0, ])
-            y = np.append(orientation[1, ], orientation[1, ])
-
-            # draw the boxes
-            ax.plot(x, y, linewidth=4, color='w')
-            ax.plot(x, y, linewidth=2, color='k')

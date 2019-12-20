@@ -189,6 +189,21 @@ def filter_labels_by_class(obj_labels, classes):
     return obj_labels[class_mask], class_mask
 
 
+def filter_dontcare_objs(obj_labels):
+    """Filters object labels by classes.
+
+    Args:
+        obj_labels: List of object labels
+        classes: List of classes to keep, e.g. ['Car', 'Pedestrian', 'Cyclist']
+
+    Returns:
+        obj_labels: List of filtered labels
+        class_mask: Mask of labels to keep
+    """
+    class_mask = [obj.type != 'DontCare' for obj in obj_labels]
+    return obj_labels[class_mask], class_mask
+
+
 def filter_labels_by_difficulty(obj_labels, difficulty):
     """Filters object labels by difficulty.
 
@@ -343,7 +358,7 @@ def read_lidar(velo_dir, sample_name):
         raise FileNotFoundError('Velodyne file not found')
 
 
-def get_lidar_point_cloud(sample_name, frame_calib, velo_dir):
+def get_lidar_point_cloud(sample_name, frame_calib, velo_dir, intensity=False):
     """Gets the lidar point cloud in cam0 frame.
 
     Args:
@@ -361,6 +376,8 @@ def get_lidar_point_cloud(sample_name, frame_calib, velo_dir):
     points_in_lidar_frame = xyzi[:, 0:3]
     points = calib_utils.lidar_to_cam_frame(points_in_lidar_frame, frame_calib)
 
+    if intensity:
+        return points.T, xyzi[:, 3]
     return points.T
 
 
@@ -603,34 +620,6 @@ def filter_pc_to_image(point_cloud, points_in_img, image_shape):
     image_filter = points_in_img_filter(points_in_img, image_shape)
 
     return point_cloud[:, image_filter], image_filter
-
-
-def compute_orientation_3d(obj, p):
-    """Computes the orientation given object and camera matrix
-
-    Keyword arguments:
-    obj -- object file to draw bounding box
-    p -- transform matrix
-    """
-
-    # compute rotational matrix
-    rot = np.array([[+np.cos(obj.ry), 0, +np.sin(obj.ry)],
-                    [0, 1, 0],
-                    [-np.sin(obj.ry), 0, +np.cos(obj.ry)]])
-
-    orientation3d = np.array([0.0, obj.l, 0.0, 0.0, 0.0, 0.0]).reshape(3, 2)
-    orientation3d = np.dot(rot, orientation3d)
-
-    orientation3d[0, :] = orientation3d[0, :] + obj.t[0]
-    orientation3d[1, :] = orientation3d[1, :] + obj.t[1]
-    orientation3d[2, :] = orientation3d[2, :] + obj.t[2]
-
-    # only draw for boxes that are in front of the camera
-    for idx in np.arange(orientation3d.shape[1]):
-        if orientation3d[2, idx] < 0.1:
-            return None
-
-    return calib_utils.project_pc_to_image(orientation3d, p)
 
 
 def is_point_inside(points, box_corners):
